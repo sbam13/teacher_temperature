@@ -1,0 +1,21 @@
+.venv
+__pycache__/
+*.pyc
+*.egg-info/
+runs/
+plots/
+runs_*/
+plots_*/
+quick_check_beta_0p5_1_plots/
+*.log
+.cache/
+
+# Slurm job scripts and scheduler output.
+*.sbatch
+slurm-*.out
+slurm-*.err
+job*.out
+job*.err
+*job*.out
+*job*.err
+"\033"

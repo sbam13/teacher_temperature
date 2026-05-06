@@ -1,0 +1,57 @@
+teacher_model: EleutherAI/pythia-70m-deduped
+dataset_name: allenai/c4
+dataset_config: en
+dataset_split: train
+streaming: true
+
+seed: 17
+max_steps: 500
+eval_every: 100
+log_every: 10
+save_every: 0
+out_dir: runs_lr_sweep_500step
+weights_out_dir: /n/netscratch/pehlevan_lab/Lab/sab
+teacher_cache_dir: /n/netscratch/pehlevan_lab/Lab/sab/teacher_logit_cache
+teacher_cache_mode: readwrite
+teacher_cache_prefetch: 8
+teacher_cache_load_workers: 4
+teacher_cache_dtype: auto
+
+seq_len: 128
+batch_size: 16
+grad_accum_steps: 1
+precision: bf16
+compile: true
+
+student_n_layer: 8
+student_n_embd: 512
+student_n_head: 8
+student_base_width: 256
+student_dropout: 0.0
+
+weight_decay: 0.01
+sgd_momentum: 0.0
+muon_momentum: 0.95
+muon_ns_steps: 5
+warmup_steps: 100
+min_lr_frac: 0.1
+grad_clip: 1.0
+
+probe_batch_size: 8
+kernel_every: 200
+kernel_param_regex: "blocks\\.(6|7)|ln_f|lm_head"
+
+lrs: [0.0001, 0.0003, 0.001, 0.003, 0.01]
+conditions:
+  - label: xent_beta_0p5
+    loss_type: xent
+    optimizer: adamw
+    beta: 0.5
+  - label: xent_beta_100
+    loss_type: xent
+    optimizer: adamw
+    beta: 100
+  - label: mse_centered_logits
+    loss_type: mse
+    optimizer: adamw
+    beta: 1

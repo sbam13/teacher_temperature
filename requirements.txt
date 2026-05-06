@@ -1,0 +1,11 @@
+torch>=2.3
+transformers>=4.40
+datasets>=2.19
+accelerate>=0.30
+numpy>=1.26
+pandas>=2.2
+matplotlib>=3.8
+seaborn>=0.13
+pyyaml>=6.0
+tqdm>=4.66
+
