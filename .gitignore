@@ -3,10 +3,7 @@ __pycache__/
 *.pyc
 *.egg-info/
 runs/
-plots/
 runs_*/
-plots_*/
-quick_check_beta_0p5_1_plots/
 *.log
 .cache/
 
