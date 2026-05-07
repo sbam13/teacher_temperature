@@ -1,0 +1,16 @@
+d: 8
+k: 4
+n: 8
+kappa: 1.0
+alpha: 0.75
+c: 0.0
+p: 32
+steps: 4
+observable_every: 2
+minibatch_size: 8
+seed: 0
+activation: tanh
+betas: [0.1]
+lrs: [0.001, 0.01]
+modes: [minibatch32, population]
+out_dir: runs/two_layer_lr_sweep_smoke

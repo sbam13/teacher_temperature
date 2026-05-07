@@ -1,0 +1,31 @@
+[2026-05-07 17:32:03] devices: [CudaDevice(id=0)]
+[2026-05-07 17:32:14] starting sweep: 7 betas x 10 lrs x 2 modes, steps=1000, observable_every=5
+[2026-05-07 17:32:23] beta=0.001 mode=minibatch32: start
+[2026-05-07 17:32:29] beta=0.001 mode=minibatch32: done in 0.1 min
+[2026-05-07 17:32:29] beta=0.001 mode=population: start
+[2026-05-07 17:32:36] beta=0.001 mode=population: done in 0.1 min
+[2026-05-07 17:32:36] beta=0.00681292 mode=minibatch32: start
+[2026-05-07 17:32:36] beta=0.00681292 mode=minibatch32: done in 0.0 min
+[2026-05-07 17:32:36] beta=0.00681292 mode=population: start
+[2026-05-07 17:32:36] beta=0.00681292 mode=population: done in 0.0 min
+[2026-05-07 17:32:36] beta=0.0464159 mode=minibatch32: start
+[2026-05-07 17:32:36] beta=0.0464159 mode=minibatch32: done in 0.0 min
+[2026-05-07 17:32:36] beta=0.0464159 mode=population: start
+[2026-05-07 17:32:37] beta=0.0464159 mode=population: done in 0.0 min
+[2026-05-07 17:32:37] beta=0.316228 mode=minibatch32: start
+[2026-05-07 17:32:37] beta=0.316228 mode=minibatch32: done in 0.0 min
+[2026-05-07 17:32:37] beta=0.316228 mode=population: start
+[2026-05-07 17:32:37] beta=0.316228 mode=population: done in 0.0 min
+[2026-05-07 17:32:37] beta=2.15443 mode=minibatch32: start
+[2026-05-07 17:32:37] beta=2.15443 mode=minibatch32: done in 0.0 min
+[2026-05-07 17:32:37] beta=2.15443 mode=population: start
+[2026-05-07 17:32:38] beta=2.15443 mode=population: done in 0.0 min
+[2026-05-07 17:32:38] beta=14.678 mode=minibatch32: start
+[2026-05-07 17:32:38] beta=14.678 mode=minibatch32: done in 0.0 min
+[2026-05-07 17:32:38] beta=14.678 mode=population: start
+[2026-05-07 17:32:38] beta=14.678 mode=population: done in 0.0 min
+[2026-05-07 17:32:38] beta=100 mode=minibatch32: start
+[2026-05-07 17:32:38] beta=100 mode=minibatch32: done in 0.0 min
+[2026-05-07 17:32:38] beta=100 mode=population: start
+[2026-05-07 17:32:39] beta=100 mode=population: done in 0.0 min
+[2026-05-07 17:32:39] sweep done in 0.6 min
