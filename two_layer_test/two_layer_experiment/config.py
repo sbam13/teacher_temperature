@@ -22,6 +22,12 @@ class SweepConfig:
     minibatch_size: Optional[int] = None
     seed: int = 0
     activation: str = "tanh"
+    optimizer: str = "gd"
+    adam_beta1: float = 0.9
+    adam_beta2: float = 0.999
+    adam_eps: float = 1e-8
+    muon_momentum: float = 0.95
+    muon_ns_steps: int = 5
     betas: tuple[float, ...] = tuple(float(x) for x in __import__("numpy").logspace(-3, 2, 7))
     lrs: tuple[float, ...] = tuple(float(x) for x in __import__("numpy").logspace(-4, 0, 11))
     modes: tuple[str, ...] = ("minibatch", "population")

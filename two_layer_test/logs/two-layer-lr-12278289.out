@@ -1,0 +1,35 @@
+CONFIG=configs/lr_sweep.yaml
+OUT_DIR=runs/two_layer_lr_sweep
+BETAS=all
+Minibatch size is read from minibatch_size, or derived as round(p ** delta) when minibatch_size is unset.
+[2026-05-10 16:46:18] devices: [CudaDevice(id=0)]
+[2026-05-10 16:46:27] starting sweep: 7 betas x 10 lrs x 2 modes, steps=1000, observable_every=5, minibatch_size=35, delta=0.5
+[2026-05-10 16:46:33] beta=0.001 mode=minibatch: start
+[2026-05-10 16:46:37] beta=0.001 mode=minibatch: done in 0.1 min
+[2026-05-10 16:46:37] beta=0.001 mode=population: start
+[2026-05-10 16:46:43] beta=0.001 mode=population: done in 0.1 min
+[2026-05-10 16:46:43] beta=0.00681292 mode=minibatch: start
+[2026-05-10 16:46:43] beta=0.00681292 mode=minibatch: done in 0.0 min
+[2026-05-10 16:46:43] beta=0.00681292 mode=population: start
+[2026-05-10 16:46:44] beta=0.00681292 mode=population: done in 0.0 min
+[2026-05-10 16:46:44] beta=0.0464159 mode=minibatch: start
+[2026-05-10 16:46:44] beta=0.0464159 mode=minibatch: done in 0.0 min
+[2026-05-10 16:46:44] beta=0.0464159 mode=population: start
+[2026-05-10 16:46:44] beta=0.0464159 mode=population: done in 0.0 min
+[2026-05-10 16:46:44] beta=0.316228 mode=minibatch: start
+[2026-05-10 16:46:44] beta=0.316228 mode=minibatch: done in 0.0 min
+[2026-05-10 16:46:44] beta=0.316228 mode=population: start
+[2026-05-10 16:46:45] beta=0.316228 mode=population: done in 0.0 min
+[2026-05-10 16:46:45] beta=2.15443 mode=minibatch: start
+[2026-05-10 16:46:45] beta=2.15443 mode=minibatch: done in 0.0 min
+[2026-05-10 16:46:45] beta=2.15443 mode=population: start
+[2026-05-10 16:46:45] beta=2.15443 mode=population: done in 0.0 min
+[2026-05-10 16:46:45] beta=14.678 mode=minibatch: start
+[2026-05-10 16:46:45] beta=14.678 mode=minibatch: done in 0.0 min
+[2026-05-10 16:46:45] beta=14.678 mode=population: start
+[2026-05-10 16:46:46] beta=14.678 mode=population: done in 0.0 min
+[2026-05-10 16:46:46] beta=100 mode=minibatch: start
+[2026-05-10 16:46:46] beta=100 mode=minibatch: done in 0.0 min
+[2026-05-10 16:46:46] beta=100 mode=population: start
+[2026-05-10 16:46:46] beta=100 mode=population: done in 0.0 min
+[2026-05-10 16:46:47] sweep done in 0.5 min

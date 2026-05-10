@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def pareto_plot(df: pd.DataFrame, mode: str, ax=None, metric: str = "test_xent"):
+def pareto_plot(df: pd.DataFrame, mode: str, ax=None, metric: str = "test_xent", optimizer: str | None = None):
     if ax is None:
         _, ax = plt.subplots(figsize=(8, 5))
     subset = df[df["mode"] == mode].copy()
+    if optimizer is not None and "optimizer" in subset.columns:
+        subset = subset[subset["optimizer"] == optimizer]
     subset = subset[subset["step"] == subset.groupby(["beta", "lr"])["step"].transform("max")]
     for beta, group in subset.groupby("beta", sort=True):
         group = group.sort_values("lr")
@@ -21,7 +23,8 @@ def pareto_plot(df: pd.DataFrame, mode: str, ax=None, metric: str = "test_xent")
         batch_label = mode[len("minibatch") :] or "delta-derived"
         ax.set_title(f"Minibatch SGD, batch size {batch_label}")
     else:
-        ax.set_title("Population gradient descent")
+        optimizer_label = optimizer.upper() if optimizer is not None else "gradient descent"
+        ax.set_title(f"Population {optimizer_label}")
     ax.grid(True, which="both", alpha=0.25)
     ax.legend(title=None, ncols=2, fontsize="small")
     return ax

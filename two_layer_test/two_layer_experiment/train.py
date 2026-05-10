@@ -122,6 +122,53 @@ def pack_train_test_observables(
     )
 
 
+def _lr_view(lrs, param):
+    return lrs.reshape((-1,) + (1,) * (param.ndim - 1))
+
+
+def _adam_update(params, grads, state, lrs, step, *, beta1: float, beta2: float, eps: float):
+    moments, velocities = state
+    moments = jax.tree.map(lambda m, g: beta1 * m + (1.0 - beta1) * g, moments, grads)
+    velocities = jax.tree.map(lambda v, g: beta2 * v + (1.0 - beta2) * jnp.square(g), velocities, grads)
+    step_float = step.astype(jnp.float32)
+    moments_hat = jax.tree.map(lambda m: m / (1.0 - beta1**step_float), moments)
+    velocities_hat = jax.tree.map(lambda v: v / (1.0 - beta2**step_float), velocities)
+    params = jax.tree.map(
+        lambda p, m, v: p - _lr_view(lrs, p) * m / (jnp.sqrt(v) + eps),
+        params,
+        moments_hat,
+        velocities_hat,
+    )
+    return params, (moments, velocities)
+
+
+def _zeropower_via_newton_schulz(update, *, ns_steps: int, eps: float = 1e-7):
+    transpose = update.shape[-2] > update.shape[-1]
+    if transpose:
+        update = jnp.swapaxes(update, -1, -2)
+    norm = jnp.linalg.norm(update, axis=(-2, -1), keepdims=True)
+    update = update / jnp.maximum(norm, eps)
+    a, b, c = 3.4445, -4.7750, 2.0315
+    for _ in range(ns_steps):
+        gram = update @ jnp.swapaxes(update, -1, -2)
+        update = a * update + (b * gram + c * gram @ gram) @ update
+    if transpose:
+        update = jnp.swapaxes(update, -1, -2)
+    return update
+
+
+def _muon_update(params, grads, momentum_buffers, lrs, *, momentum: float, ns_steps: int):
+    momentum_buffers = jax.tree.map(lambda b, g: momentum * b + g, momentum_buffers, grads)
+
+    def update_param(param, buf):
+        direction = _zeropower_via_newton_schulz(buf, ns_steps=ns_steps)
+        scale = jnp.sqrt(jnp.maximum(1.0, param.shape[-2] / param.shape[-1]))
+        return param - _lr_view(lrs, param) * scale * direction
+
+    params = jax.tree.map(update_param, params, momentum_buffers)
+    return params, momentum_buffers
+
+
 @partial(jax.jit, static_argnames=("steps", "batch_size", "observable_every", "d", "m", "c", "activation"))
 def train_minibatch_lrs(
     init_params: Params,
@@ -155,7 +202,7 @@ def train_minibatch_lrs(
         xb = x[idx]
         yb = y[idx]
         _, grads = jax.vmap(grad_one, in_axes=(0, None, None))(params, xb, yb)
-        params = jax.tree.map(lambda p, g: p - lrs.reshape((-1,) + (1,) * (p.ndim - 1)) * g, params, grads)
+        params = jax.tree.map(lambda p, g: p - _lr_view(lrs, p) * g, params, grads)
         return params, None
 
     def block(params, block_idx):
@@ -212,7 +259,23 @@ def train_minibatch_lrs(
     )
 
 
-@partial(jax.jit, static_argnames=("steps", "observable_every", "d", "m", "c", "activation"))
+@partial(
+    jax.jit,
+    static_argnames=(
+        "steps",
+        "observable_every",
+        "d",
+        "m",
+        "c",
+        "activation",
+        "optimizer",
+        "adam_beta1",
+        "adam_beta2",
+        "adam_eps",
+        "muon_momentum",
+        "muon_ns_steps",
+    ),
+)
 def train_population_lrs(
     init_params: Params,
     lrs,
@@ -230,21 +293,54 @@ def train_population_lrs(
     m: int,
     c: float,
     activation: str,
+    optimizer: str = "gd",
+    adam_beta1: float = 0.9,
+    adam_beta2: float = 0.999,
+    adam_eps: float = 1e-8,
+    muon_momentum: float = 0.95,
+    muon_ns_steps: int = 5,
 ) -> TrainOutput:
     params0 = jax.tree.map(lambda z: jnp.broadcast_to(z, (lrs.shape[0],) + z.shape), init_params)
+    optimizer = optimizer.lower()
+    if optimizer not in ("gd", "adam", "muon"):
+        raise ValueError(f"Unknown optimizer {optimizer!r}; expected gd, adam, or muon.")
 
     def loss_one(params):
         return population_loss(params, x, y, d=d, m=m, c=c, activation=activation)
 
     grad_one = jax.value_and_grad(loss_one)
 
-    def update(params, _):
+    def update(carry, t):
+        params, opt_state = carry
         _, grads = jax.vmap(grad_one)(params)
-        params = jax.tree.map(lambda p, g: p - lrs.reshape((-1,) + (1,) * (p.ndim - 1)) * g, params, grads)
-        return params, None
+        if optimizer == "gd":
+            params = jax.tree.map(lambda p, g: p - _lr_view(lrs, p) * g, params, grads)
+        elif optimizer == "adam":
+            params, opt_state = _adam_update(
+                params,
+                grads,
+                opt_state,
+                lrs,
+                t + 1,
+                beta1=adam_beta1,
+                beta2=adam_beta2,
+                eps=adam_eps,
+            )
+        elif optimizer == "muon":
+            params, opt_state = _muon_update(
+                params,
+                grads,
+                opt_state,
+                lrs,
+                momentum=muon_momentum,
+                ns_steps=muon_ns_steps,
+            )
+        return (params, opt_state), None
 
-    def block(params, _):
-        params, _ = jax.lax.scan(update, params, None, length=observable_every)
+    def block(carry, block_idx):
+        offset = block_idx * observable_every
+        carry, _ = jax.lax.scan(update, carry, offset + jnp.arange(observable_every), length=observable_every)
+        params, _ = carry
         obs = pack_train_test_observables(
             params,
             x,
@@ -259,7 +355,7 @@ def train_population_lrs(
             c=c,
             activation=activation,
         )
-        return params, obs
+        return carry, obs
 
     obs0 = pack_train_test_observables(
         params0,
@@ -276,7 +372,14 @@ def train_population_lrs(
         activation=activation,
     )
     n_blocks = steps // observable_every
-    final_params, obs_scan = jax.lax.scan(block, params0, None, length=n_blocks)
+    if optimizer == "adam":
+        state0 = (
+            jax.tree.map(jnp.zeros_like, params0),
+            jax.tree.map(jnp.zeros_like, params0),
+        )
+    else:
+        state0 = jax.tree.map(jnp.zeros_like, params0)
+    (final_params, _), obs_scan = jax.lax.scan(block, (params0, state0), jnp.arange(n_blocks), length=n_blocks)
     obs = tuple(jnp.concatenate([o0[None, ...], os], axis=0) for o0, os in zip(obs0, obs_scan))
     keep = jnp.arange(0, steps + 1, observable_every)
     return TrainOutput(

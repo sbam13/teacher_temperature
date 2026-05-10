@@ -1,0 +1,12 @@
+/n/home07/ssainathan/workplace/temperature_experiments/two_layer_test/two_layer_experiment/run_lr_sweep.py:11: DeprecationWarning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
+If this would cause problems for you,
+please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+        
+  import pandas as pd
+beta/mode jobs:   0%|          | 0/14 [00:00<?, ?it/s]2026-05-10 16:46:33.793196: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-05-10 16:46:33.793281: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+2026-05-10 16:46:33.793299: W external/xla/xla/service/gpu/autotuning/dot_search_space.cc:200] All configs were filtered out because none of them sufficiently match the hints. Maybe the hints set does not contain a good representative set of valid configs?Working around this by using the full hints set instead.
+beta/mode jobs:   7%|▋         | 1/14 [00:09<02:09,  9.93s/it]beta/mode jobs:  14%|█▍        | 2/14 [00:15<01:28,  7.40s/it]beta/mode jobs:  21%|██▏       | 3/14 [00:15<00:45,  4.17s/it]beta/mode jobs:  29%|██▊       | 4/14 [00:16<00:26,  2.64s/it]beta/mode jobs:  36%|███▌      | 5/14 [00:16<00:15,  1.77s/it]beta/mode jobs:  43%|████▎     | 6/14 [00:16<00:10,  1.28s/it]beta/mode jobs:  50%|█████     | 7/14 [00:16<00:06,  1.06it/s]beta/mode jobs:  57%|█████▋    | 8/14 [00:17<00:04,  1.36it/s]beta/mode jobs:  64%|██████▍   | 9/14 [00:17<00:02,  1.73it/s]beta/mode jobs:  71%|███████▏  | 10/14 [00:17<00:01,  2.03it/s]beta/mode jobs:  79%|███████▊  | 11/14 [00:18<00:01,  2.42it/s]beta/mode jobs:  86%|████████▌ | 12/14 [00:18<00:00,  2.64it/s]beta/mode jobs:  93%|█████████▎| 13/14 [00:18<00:00,  3.00it/s]beta/mode jobs: 100%|██████████| 14/14 [00:18<00:00,  3.09it/s]beta/mode jobs: 100%|██████████| 14/14 [00:18<00:00,  1.36s/it]

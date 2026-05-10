@@ -75,8 +75,16 @@ def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
                 m=m,
                 c=config.c,
                 activation=config.activation,
+                optimizer=config.optimizer,
+                adam_beta1=config.adam_beta1,
+                adam_beta2=config.adam_beta2,
+                adam_eps=config.adam_eps,
+                muon_momentum=config.muon_momentum,
+                muon_ns_steps=config.muon_ns_steps,
             )
         elif mode.startswith("minibatch"):
+            if config.optimizer != "gd":
+                raise ValueError("Only full-batch population training supports non-GD optimizers.")
             output = train_minibatch_lrs(
                 init_student_params,
                 lrs,
@@ -117,6 +125,7 @@ def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
                 rows.append(
                     {
                         "beta": float(beta),
+                        "optimizer": config.optimizer,
                         "mode": mode_name,
                         "lr": float(lr),
                         "step": int(step),
@@ -174,7 +183,8 @@ def main():
         f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] starting sweep: "
         f"{len(config.betas)} betas x {len(config.lrs)} lrs x {len(config.modes)} modes, "
         f"steps={config.steps}, observable_every={config.observable_every}, "
-        f"minibatch_size={config.effective_minibatch_size}, delta={config.delta}",
+        f"minibatch_size={config.effective_minibatch_size}, delta={config.delta}, "
+        f"optimizer={config.optimizer}",
         flush=True,
     )
     with tqdm(total=len(config.betas) * len(config.modes), desc="beta/mode jobs") as progress:
