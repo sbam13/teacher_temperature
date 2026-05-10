@@ -1,0 +1,22 @@
+d: 100
+k: 100
+n: 300
+kappa: 1.0
+alpha: 0.75
+c: 0.0
+p: 512
+delta: 0.5
+steps: 2000
+observable_every: 10
+minibatch_size:
+seed: 0
+activation: tanh
+optimizer: gd
+modes: [population]
+p_values: [512, 1024, 2048, 4096]
+betas: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+lr_min: 0.101
+lr_max: 0.644
+beta_0: 2.27
+transition_k: 6.9
+out_dir: runs/fit_scaling_law_20260510_184248

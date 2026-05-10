@@ -1,0 +1,19 @@
+TASK=FitScalingLaw
+SLURM_ARRAY_JOB_ID=12311379
+SLURM_ARRAY_TASK_ID=9
+CONFIG=configs/fit_scaling_law.yaml
+OUT_DIR=runs/fit_scaling_law_20260510_184248
+BETA=9
+p grid: 512,1024,2048,4096
+steps: 2000
+[2026-05-10 18:46:36] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_20260510_184248
+p_values=[512, 1024, 2048, 4096] betas=[9.0] steps=2000
+[2026-05-10 18:46:42] beta=9 p=512 lr=0.6253484: start
+[2026-05-10 18:46:47] beta=9 p=512: done in 0.1 min
+[2026-05-10 18:46:48] beta=9 p=1024 lr=0.6253484: start
+[2026-05-10 18:46:52] beta=9 p=1024: done in 0.1 min
+[2026-05-10 18:46:54] beta=9 p=2048 lr=0.6253484: start
+[2026-05-10 18:46:59] beta=9 p=2048: done in 0.1 min
+[2026-05-10 18:47:00] beta=9 p=4096 lr=0.6253484: start
+[2026-05-10 18:47:05] beta=9 p=4096: done in 0.1 min
