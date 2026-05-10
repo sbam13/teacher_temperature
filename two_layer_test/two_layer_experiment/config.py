@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Optional
 
 import yaml
 
@@ -15,19 +16,28 @@ class SweepConfig:
     alpha: float = 0.75
     c: float = 0.0
     p: int = 1200
+    delta: Optional[float] = 0.5
     steps: int = 100
     observable_every: int = 5
-    minibatch_size: int = 32
+    minibatch_size: Optional[int] = None
     seed: int = 0
     activation: str = "tanh"
     betas: tuple[float, ...] = tuple(float(x) for x in __import__("numpy").logspace(-3, 2, 7))
     lrs: tuple[float, ...] = tuple(float(x) for x in __import__("numpy").logspace(-4, 0, 11))
-    modes: tuple[str, ...] = ("minibatch32", "population")
+    modes: tuple[str, ...] = ("minibatch", "population")
     out_dir: str = "runs/two_layer_lr_sweep"
 
     @property
     def student_width(self) -> int:
         return int(round(self.kappa * self.n))
+
+    @property
+    def effective_minibatch_size(self) -> int:
+        if self.minibatch_size is not None:
+            return int(self.minibatch_size)
+        if self.delta is None:
+            raise ValueError("Either minibatch_size or delta must be set for minibatch SGD.")
+        return max(1, int(round(self.p ** self.delta)))
 
 
 def load_config(path: str | Path | None) -> SweepConfig:

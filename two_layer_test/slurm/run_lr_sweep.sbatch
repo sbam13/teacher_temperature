@@ -34,5 +34,10 @@ if [[ -n "${BETAS:-}" ]]; then
     BETAS_ARG=(--betas "$BETAS")
 fi
 
+echo "CONFIG=$CONFIG"
+echo "OUT_DIR=$OUT_DIR"
+echo "BETAS=${BETAS:-all}"
+echo "Minibatch size is read from minibatch_size, or derived as round(p ** delta) when minibatch_size is unset."
+
 python -m two_layer_experiment.run_lr_sweep --config "$CONFIG" --out_dir "$OUT_DIR" "${BETAS_ARG[@]}"
 python -m scripts.process_results --runs_dir "$OUT_DIR"

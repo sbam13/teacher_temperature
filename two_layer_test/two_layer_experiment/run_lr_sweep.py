@@ -24,6 +24,7 @@ def beta_slug(beta: float) -> str:
 def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
     keys = jax.random.split(jax.random.PRNGKey(config.seed), 5)
     m = config.student_width
+    minibatch_size = config.effective_minibatch_size
     teacher = init_teacher(keys[0], config.d, config.n, config.k, config.alpha, config.c)
     init_student_params = init_student(keys[1], config.d, m, config.k, config.c)
     x, y, teacher_logits = sample_population(
@@ -37,11 +38,23 @@ def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
         c=config.c,
         activation=config.activation,
     )
-    batch_indices = random_batch_indices(keys[3], steps=config.steps, batch_size=config.minibatch_size, p=config.p)
+    test_x, test_y, test_teacher_logits = sample_population(
+        keys[3],
+        teacher,
+        d=config.d,
+        n=config.n,
+        k=config.k,
+        p=config.p,
+        beta=beta,
+        c=config.c,
+        activation=config.activation,
+    )
+    batch_indices = random_batch_indices(keys[4], steps=config.steps, batch_size=minibatch_size, p=config.p)
     lrs = jnp.asarray(config.lrs, dtype=jnp.float32)
 
     rows = []
-    diagnostics = teacher_diagnostics(teacher, x, teacher_logits, d=config.d, n=config.n, c=config.c)
+    train_diagnostics = teacher_diagnostics(teacher, x, teacher_logits, d=config.d, n=config.n, c=config.c)
+    test_diagnostics = teacher_diagnostics(teacher, test_x, test_teacher_logits, d=config.d, n=config.n, c=config.c)
     for mode in config.modes:
         print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] beta={beta:g} mode={mode}: start", flush=True)
         tic = time.time()
@@ -52,6 +65,9 @@ def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
                 x,
                 y,
                 teacher_logits,
+                test_x,
+                test_y,
+                test_teacher_logits,
                 teacher.w1,
                 steps=config.steps,
                 observable_every=config.observable_every,
@@ -60,17 +76,20 @@ def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
                 c=config.c,
                 activation=config.activation,
             )
-        elif mode in {"minibatch32", "minibatch"}:
+        elif mode.startswith("minibatch"):
             output = train_minibatch_lrs(
                 init_student_params,
                 lrs,
                 x,
                 y,
                 teacher_logits,
+                test_x,
+                test_y,
+                test_teacher_logits,
                 teacher.w1,
                 batch_indices,
                 steps=config.steps,
-                batch_size=config.minibatch_size,
+                batch_size=minibatch_size,
                 observable_every=config.observable_every,
                 d=config.d,
                 m=m,
@@ -80,14 +99,19 @@ def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
         else:
             raise ValueError(f"Unknown mode {mode!r}")
         steps = np.asarray(jax.device_get(output.steps))
-        xent = np.asarray(jax.device_get(output.population_xent))
-        logit_mse = np.asarray(jax.device_get(output.population_logit_mse))
-        student_h1_rms = np.asarray(jax.device_get(output.student_h1_rms))
-        student_h2_rms = np.asarray(jax.device_get(output.student_h2_rms))
-        student_df_dh1_rms = np.asarray(jax.device_get(output.student_df_dh1_rms))
+        train_xent = np.asarray(jax.device_get(output.train_xent))
+        test_xent = np.asarray(jax.device_get(output.test_xent))
+        train_logit_mse = np.asarray(jax.device_get(output.train_logit_mse))
+        test_logit_mse = np.asarray(jax.device_get(output.test_logit_mse))
+        train_student_h1_rms = np.asarray(jax.device_get(output.train_student_h1_rms))
+        test_student_h1_rms = np.asarray(jax.device_get(output.test_student_h1_rms))
+        train_student_h2_rms = np.asarray(jax.device_get(output.train_student_h2_rms))
+        test_student_h2_rms = np.asarray(jax.device_get(output.test_student_h2_rms))
+        train_student_df_dh1_rms = np.asarray(jax.device_get(output.train_student_df_dh1_rms))
+        test_student_df_dh1_rms = np.asarray(jax.device_get(output.test_student_df_dh1_rms))
         w1_cosine_fro = np.asarray(jax.device_get(output.w1_cosine_fro))
         seconds = time.time() - tic
-        mode_name = "minibatch32" if mode == "minibatch" else mode
+        mode_name = f"minibatch{minibatch_size}" if mode.startswith("minibatch") else mode
         for t_idx, step in enumerate(steps):
             for lr_idx, lr in enumerate(config.lrs):
                 rows.append(
@@ -96,15 +120,23 @@ def run_beta(config: SweepConfig, beta: float, out_dir: Path, progress):
                         "mode": mode_name,
                         "lr": float(lr),
                         "step": int(step),
-                        "population_xent": float(xent[t_idx, lr_idx]),
-                        "population_logit_mse": float(logit_mse[t_idx, lr_idx]),
-                        "teacher_h1_rms": diagnostics["teacher_h1_rms"],
-                        "teacher_h2_rms": diagnostics["teacher_h2_rms"],
-                        "student_h1_rms": float(student_h1_rms[t_idx, lr_idx]),
-                        "student_h2_rms": float(student_h2_rms[t_idx, lr_idx]),
-                        "student_df_dh1_rms": float(student_df_dh1_rms[t_idx, lr_idx]),
+                        "train_xent": float(train_xent[t_idx, lr_idx]),
+                        "test_xent": float(test_xent[t_idx, lr_idx]),
+                        "train_logit_mse": float(train_logit_mse[t_idx, lr_idx]),
+                        "test_logit_mse": float(test_logit_mse[t_idx, lr_idx]),
+                        "train_teacher_h1_rms": train_diagnostics["teacher_h1_rms"],
+                        "test_teacher_h1_rms": test_diagnostics["teacher_h1_rms"],
+                        "train_teacher_h2_rms": train_diagnostics["teacher_h2_rms"],
+                        "test_teacher_h2_rms": test_diagnostics["teacher_h2_rms"],
+                        "train_student_h1_rms": float(train_student_h1_rms[t_idx, lr_idx]),
+                        "test_student_h1_rms": float(test_student_h1_rms[t_idx, lr_idx]),
+                        "train_student_h2_rms": float(train_student_h2_rms[t_idx, lr_idx]),
+                        "test_student_h2_rms": float(test_student_h2_rms[t_idx, lr_idx]),
+                        "train_student_df_dh1_rms": float(train_student_df_dh1_rms[t_idx, lr_idx]),
+                        "test_student_df_dh1_rms": float(test_student_df_dh1_rms[t_idx, lr_idx]),
                         "w1_cosine_fro": float(w1_cosine_fro[t_idx, lr_idx]),
-                        "minibatch_size": config.minibatch_size if mode_name != "population" else config.p,
+                        "minibatch_size": minibatch_size if mode_name != "population" else config.p,
+                        "delta": config.delta,
                         "seconds_for_mode": seconds,
                     }
                 )
@@ -141,7 +173,8 @@ def main():
     print(
         f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] starting sweep: "
         f"{len(config.betas)} betas x {len(config.lrs)} lrs x {len(config.modes)} modes, "
-        f"steps={config.steps}, observable_every={config.observable_every}",
+        f"steps={config.steps}, observable_every={config.observable_every}, "
+        f"minibatch_size={config.effective_minibatch_size}, delta={config.delta}",
         flush=True,
     )
     with tqdm(total=len(config.betas) * len(config.modes), desc="beta/mode jobs") as progress:

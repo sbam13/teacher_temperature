@@ -5,12 +5,13 @@ kappa: 1.0
 alpha: 0.75
 c: 0.0
 p: 32
+delta: 0.5
 steps: 4
 observable_every: 2
-minibatch_size: 8
+minibatch_size:
 seed: 0
 activation: tanh
 betas: [0.1]
 lrs: [0.001, 0.01]
-modes: [minibatch32, population]
+modes: [minibatch, population]
 out_dir: runs/two_layer_lr_sweep_smoke

@@ -12,11 +12,16 @@ from two_layer_experiment.model import Params, activation_prime, forward_student
 class TrainOutput(NamedTuple):
     final_params: Params
     steps: jax.Array
-    population_xent: jax.Array
-    population_logit_mse: jax.Array
-    student_h1_rms: jax.Array
-    student_h2_rms: jax.Array
-    student_df_dh1_rms: jax.Array
+    train_xent: jax.Array
+    test_xent: jax.Array
+    train_logit_mse: jax.Array
+    test_logit_mse: jax.Array
+    train_student_h1_rms: jax.Array
+    test_student_h1_rms: jax.Array
+    train_student_h2_rms: jax.Array
+    test_student_h2_rms: jax.Array
+    train_student_df_dh1_rms: jax.Array
+    test_student_df_dh1_rms: jax.Array
     w1_cosine_fro: jax.Array
 
 
@@ -65,6 +70,58 @@ def pack_observables(params, x, y, teacher_logits, teacher_w1, *, d: int, m: int
     )(params)
 
 
+def pack_train_test_observables(
+    params,
+    train_x,
+    train_y,
+    train_teacher_logits,
+    test_x,
+    test_y,
+    test_teacher_logits,
+    teacher_w1,
+    *,
+    d: int,
+    m: int,
+    c: float,
+    activation: str,
+):
+    train_obs = pack_observables(
+        params,
+        train_x,
+        train_y,
+        train_teacher_logits,
+        teacher_w1,
+        d=d,
+        m=m,
+        c=c,
+        activation=activation,
+    )
+    test_obs = pack_observables(
+        params,
+        test_x,
+        test_y,
+        test_teacher_logits,
+        teacher_w1,
+        d=d,
+        m=m,
+        c=c,
+        activation=activation,
+    )
+    return (
+        train_obs[0],
+        test_obs[0],
+        train_obs[1],
+        test_obs[1],
+        train_obs[2],
+        test_obs[2],
+        train_obs[3],
+        test_obs[3],
+        train_obs[4],
+        test_obs[4],
+        train_obs[5],
+    )
+
+
 @partial(jax.jit, static_argnames=("steps", "batch_size", "observable_every", "d", "m", "c", "activation"))
 def train_minibatch_lrs(
     init_params: Params,
@@ -72,6 +129,9 @@ def train_minibatch_lrs(
     x,
     y,
     teacher_logits,
+    test_x,
+    test_y,
+    test_teacher_logits,
     teacher_w1,
     batch_indices,
     *,
@@ -101,15 +161,55 @@ def train_minibatch_lrs(
     def block(params, block_idx):
         offset = block_idx * observable_every
         params, _ = jax.lax.scan(update, params, offset + jnp.arange(observable_every), length=observable_every)
-        obs = pack_observables(params, x, y, teacher_logits, teacher_w1, d=d, m=m, c=c, activation=activation)
+        obs = pack_train_test_observables(
+            params,
+            x,
+            y,
+            teacher_logits,
+            test_x,
+            test_y,
+            test_teacher_logits,
+            teacher_w1,
+            d=d,
+            m=m,
+            c=c,
+            activation=activation,
+        )
         return params, obs
 
-    obs0 = pack_observables(params0, x, y, teacher_logits, teacher_w1, d=d, m=m, c=c, activation=activation)
+    obs0 = pack_train_test_observables(
+        params0,
+        x,
+        y,
+        teacher_logits,
+        test_x,
+        test_y,
+        test_teacher_logits,
+        teacher_w1,
+        d=d,
+        m=m,
+        c=c,
+        activation=activation,
+    )
     n_blocks = steps // observable_every
     final_params, obs_scan = jax.lax.scan(block, params0, jnp.arange(n_blocks), length=n_blocks)
     obs = tuple(jnp.concatenate([o0[None, ...], os], axis=0) for o0, os in zip(obs0, obs_scan))
     keep = jnp.arange(0, steps + 1, observable_every)
-    return TrainOutput(final_params=final_params, steps=keep, population_xent=obs[0], population_logit_mse=obs[1], student_h1_rms=obs[2], student_h2_rms=obs[3], student_df_dh1_rms=obs[4], w1_cosine_fro=obs[5])
+    return TrainOutput(
+        final_params=final_params,
+        steps=keep,
+        train_xent=obs[0],
+        test_xent=obs[1],
+        train_logit_mse=obs[2],
+        test_logit_mse=obs[3],
+        train_student_h1_rms=obs[4],
+        test_student_h1_rms=obs[5],
+        train_student_h2_rms=obs[6],
+        test_student_h2_rms=obs[7],
+        train_student_df_dh1_rms=obs[8],
+        test_student_df_dh1_rms=obs[9],
+        w1_cosine_fro=obs[10],
+    )
 
 
 @partial(jax.jit, static_argnames=("steps", "observable_every", "d", "m", "c", "activation"))
@@ -119,6 +219,9 @@ def train_population_lrs(
     x,
     y,
     teacher_logits,
+    test_x,
+    test_y,
+    test_teacher_logits,
     teacher_w1,
     *,
     steps: int,
@@ -142,12 +245,52 @@ def train_population_lrs(
 
     def block(params, _):
         params, _ = jax.lax.scan(update, params, None, length=observable_every)
-        obs = pack_observables(params, x, y, teacher_logits, teacher_w1, d=d, m=m, c=c, activation=activation)
+        obs = pack_train_test_observables(
+            params,
+            x,
+            y,
+            teacher_logits,
+            test_x,
+            test_y,
+            test_teacher_logits,
+            teacher_w1,
+            d=d,
+            m=m,
+            c=c,
+            activation=activation,
+        )
         return params, obs
 
-    obs0 = pack_observables(params0, x, y, teacher_logits, teacher_w1, d=d, m=m, c=c, activation=activation)
+    obs0 = pack_train_test_observables(
+        params0,
+        x,
+        y,
+        teacher_logits,
+        test_x,
+        test_y,
+        test_teacher_logits,
+        teacher_w1,
+        d=d,
+        m=m,
+        c=c,
+        activation=activation,
+    )
     n_blocks = steps // observable_every
     final_params, obs_scan = jax.lax.scan(block, params0, None, length=n_blocks)
     obs = tuple(jnp.concatenate([o0[None, ...], os], axis=0) for o0, os in zip(obs0, obs_scan))
     keep = jnp.arange(0, steps + 1, observable_every)
-    return TrainOutput(final_params=final_params, steps=keep, population_xent=obs[0], population_logit_mse=obs[1], student_h1_rms=obs[2], student_h2_rms=obs[3], student_df_dh1_rms=obs[4], w1_cosine_fro=obs[5])
+    return TrainOutput(
+        final_params=final_params,
+        steps=keep,
+        train_xent=obs[0],
+        test_xent=obs[1],
+        train_logit_mse=obs[2],
+        test_logit_mse=obs[3],
+        train_student_h1_rms=obs[4],
+        test_student_h1_rms=obs[5],
+        train_student_h2_rms=obs[6],
+        test_student_h2_rms=obs[7],
+        train_student_df_dh1_rms=obs[8],
+        test_student_df_dh1_rms=obs[9],
+        w1_cosine_fro=obs[10],
+    )
