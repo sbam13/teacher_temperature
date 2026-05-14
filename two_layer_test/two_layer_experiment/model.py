@@ -41,27 +41,25 @@ def alpha_s(n: int, alpha: float) -> float:
     return float(jnp.log(total) / jnp.log(float(n)))
 
 
-def teacher_exponents(alpha: float, c: float) -> tuple[float, float, float, float]:
-    del alpha
+def teacher_exponents(n: int, alpha: float, c: float) -> tuple[float, float, float, float]:
     a1 = 0.5
     b1 = 0.0
-    a2 = -0.5 * c
-    b2 = -c
+    a2 = 0.0
+    b2 = alpha_s(n, alpha) - 2.0 * c
     return a1, b1, a2, b2
 
 
 def identity_student_exponents(m: int, c: float) -> tuple[float, float, float, float]:
-    del m
     s_identity = 1.0
     a1 = 0.5
     b1 = 0.0
-    a2 = 0.25 * (s_identity - 2.0 * c)
-    b2 = 0.5 * (s_identity - 2.0 * c)
+    a2 = 0.0
+    b2 = s_identity - 2.0 * c
     return a1, b1, a2, b2
 
 
 def init_teacher(key, d: int, n: int, k: int, alpha: float, c: float) -> Params:
-    _, b1, _, b2 = teacher_exponents(alpha, c)
+    _, b1, _, b2 = teacher_exponents(n, alpha, c)
     k1, k2 = jax.random.split(key)
     w1 = jax.random.normal(k1, (n, d), dtype=jnp.float32) * d ** (-0.5 * b1)
     sigma_sqrt = jnp.arange(1, n + 1, dtype=jnp.float32) ** (-alpha)
@@ -88,16 +86,14 @@ def forward_student(params: Params, x, *, d: int, m: int, c: float, activation: 
 
 
 def forward_teacher_parts(params: Params, x, *, d: int, n: int, c: float, activation: str):
-    _, _, a2, _ = teacher_exponents(0.75, c)
     h1 = (x @ params.w1.T) / d**0.5
-    logits = (activation_fn(activation)(h1) @ params.w2.T) / (n**c * n**a2)
+    logits = (activation_fn(activation)(h1) @ params.w2.T) / n**c
     return h1, logits
 
 
 def forward_student_parts(params: Params, x, *, d: int, m: int, c: float, activation: str):
-    _, _, a2, _ = identity_student_exponents(m, c)
     h1 = (x @ params.w1.T) / d**0.5
-    logits = (activation_fn(activation)(h1) @ params.w2.T) / (m**c * m**a2)
+    logits = (activation_fn(activation)(h1) @ params.w2.T) / m**c
     return h1, logits
 
 

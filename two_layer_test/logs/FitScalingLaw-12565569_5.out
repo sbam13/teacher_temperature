@@ -1,0 +1,33 @@
+TASK=FitScalingLaw
+SLURM_ARRAY_JOB_ID=12565569
+SLURM_ARRAY_TASK_ID=5
+CONFIG=configs/fit_scaling_law.yaml
+OUT_DIR=runs/fit_scaling_law_20260510_184248
+P=131072
+betas: 1 2 3 4 5 6 7 8 9 10
+submitted p grid: 512 1024 2048 4096 131072
+full-pass budget: 2000
+minibatch size: 2048
+[2026-05-12 10:59:59] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_20260510_184248
+p_values=[131072] betas=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0] steps=2000 minibatch_p_values=[512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072] minibatch_size=2048 target_passes=2000
+[2026-05-12 11:00:05] beta=1 p=131072 mode=minibatch2048 lr=0.11690924 steps=128000 observable_every=640: start
+[2026-05-12 11:00:23] beta=1 p=131072: done in 0.3 min
+[2026-05-12 11:00:23] beta=2 p=131072 mode=minibatch2048 lr=0.21437751 steps=128000 observable_every=640: start
+[2026-05-12 11:00:34] beta=2 p=131072: done in 0.2 min
+[2026-05-12 11:00:34] beta=3 p=131072 mode=minibatch2048 lr=0.36772941 steps=128000 observable_every=640: start
+[2026-05-12 11:00:46] beta=3 p=131072: done in 0.2 min
+[2026-05-12 11:00:46] beta=4 p=131072 mode=minibatch2048 lr=0.48345932 steps=128000 observable_every=640: start
+[2026-05-12 11:00:58] beta=4 p=131072: done in 0.2 min
+[2026-05-12 11:00:58] beta=5 p=131072 mode=minibatch2048 lr=0.54937915 steps=128000 observable_every=640: start
+[2026-05-12 11:01:10] beta=5 p=131072: done in 0.2 min
+[2026-05-12 11:01:10] beta=6 p=131072 mode=minibatch2048 lr=0.58536377 steps=128000 observable_every=640: start
+[2026-05-12 11:01:21] beta=6 p=131072: done in 0.2 min
+[2026-05-12 11:01:22] beta=7 p=131072 mode=minibatch2048 lr=0.60569741 steps=128000 observable_every=640: start
+[2026-05-12 11:01:33] beta=7 p=131072: done in 0.2 min
+[2026-05-12 11:01:33] beta=8 p=131072 mode=minibatch2048 lr=0.61778983 steps=128000 observable_every=640: start
+[2026-05-12 11:01:45] beta=8 p=131072: done in 0.2 min
+[2026-05-12 11:01:45] beta=9 p=131072 mode=minibatch2048 lr=0.6253484 steps=128000 observable_every=640: start
+[2026-05-12 11:01:57] beta=9 p=131072: done in 0.2 min
+[2026-05-12 11:01:57] beta=10 p=131072 mode=minibatch2048 lr=0.63028589 steps=128000 observable_every=640: start
+[2026-05-12 11:02:09] beta=10 p=131072: done in 0.2 min

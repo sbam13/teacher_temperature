@@ -3,7 +3,7 @@ k: 100
 n: 300
 kappa: 1.0
 alpha: 0.75
-c: 0.0
+c: 0.5
 p: 512
 delta: 0.5
 steps: 2000
@@ -21,4 +21,4 @@ lr_min: 0.101
 lr_max: 0.644
 beta_0: 2.27
 transition_k: 6.9
-out_dir: runs/fit_scaling_law_20260510_184248
+out_dir: runs/fit_scaling_law_alpha075_c05_20260512

@@ -1,0 +1,43 @@
+TASK=FitScalingLaw alpha=0.75 c=0.5
+SLURM_ARRAY_JOB_ID=12604573
+SLURM_ARRAY_TASK_ID=5
+CONFIG=configs/fit_scaling_law_alpha075_c05.yaml
+OUT_DIR=runs/fit_scaling_law_alpha075_c05_20260512
+P=8192
+betas: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+submitted p grid: 512 1024 2048 4096 8192 16384 32768 65536 131072
+full-pass budget: 2000
+minibatch size: 2048
+[2026-05-12 16:41:05] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_alpha075_c05_20260512
+p_values=[8192] betas=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0] steps=2000 minibatch_p_values=[512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072] minibatch_size=2048 target_passes=2000
+[2026-05-12 16:41:09] beta=1 p=8192 mode=minibatch2048 lr=0.11690924 steps=8000 observable_every=40: start
+[2026-05-12 16:41:15] beta=1 p=8192: done in 0.1 min
+[2026-05-12 16:41:15] beta=2 p=8192 mode=minibatch2048 lr=0.21437751 steps=8000 observable_every=40: start
+[2026-05-12 16:41:17] beta=2 p=8192: done in 0.0 min
+[2026-05-12 16:41:17] beta=3 p=8192 mode=minibatch2048 lr=0.36772941 steps=8000 observable_every=40: start
+[2026-05-12 16:41:18] beta=3 p=8192: done in 0.0 min
+[2026-05-12 16:41:18] beta=4 p=8192 mode=minibatch2048 lr=0.48345932 steps=8000 observable_every=40: start
+[2026-05-12 16:41:19] beta=4 p=8192: done in 0.0 min
+[2026-05-12 16:41:19] beta=5 p=8192 mode=minibatch2048 lr=0.54937915 steps=8000 observable_every=40: start
+[2026-05-12 16:41:20] beta=5 p=8192: done in 0.0 min
+[2026-05-12 16:41:20] beta=6 p=8192 mode=minibatch2048 lr=0.58536377 steps=8000 observable_every=40: start
+[2026-05-12 16:41:22] beta=6 p=8192: done in 0.0 min
+[2026-05-12 16:41:22] beta=7 p=8192 mode=minibatch2048 lr=0.60569741 steps=8000 observable_every=40: start
+[2026-05-12 16:41:23] beta=7 p=8192: done in 0.0 min
+[2026-05-12 16:41:23] beta=8 p=8192 mode=minibatch2048 lr=0.61778983 steps=8000 observable_every=40: start
+[2026-05-12 16:41:24] beta=8 p=8192: done in 0.0 min
+[2026-05-12 16:41:24] beta=9 p=8192 mode=minibatch2048 lr=0.6253484 steps=8000 observable_every=40: start
+[2026-05-12 16:41:26] beta=9 p=8192: done in 0.0 min
+[2026-05-12 16:41:26] beta=10 p=8192 mode=minibatch2048 lr=0.63028589 steps=8000 observable_every=40: start
+[2026-05-12 16:41:27] beta=10 p=8192: done in 0.0 min
+[2026-05-12 16:41:27] beta=11 p=8192 mode=minibatch2048 lr=0.63363589 steps=8000 observable_every=40: start
+[2026-05-12 16:41:28] beta=11 p=8192: done in 0.0 min
+[2026-05-12 16:41:28] beta=12 p=8192 mode=minibatch2048 lr=0.6359838 steps=8000 observable_every=40: start
+[2026-05-12 16:41:30] beta=12 p=8192: done in 0.0 min
+[2026-05-12 16:41:30] beta=13 p=8192 mode=minibatch2048 lr=0.63767586 steps=8000 observable_every=40: start
+[2026-05-12 16:41:31] beta=13 p=8192: done in 0.0 min
+[2026-05-12 16:41:31] beta=14 p=8192 mode=minibatch2048 lr=0.63892494 steps=8000 observable_every=40: start
+[2026-05-12 16:41:32] beta=14 p=8192: done in 0.0 min
+[2026-05-12 16:41:32] beta=15 p=8192 mode=minibatch2048 lr=0.63986649 steps=8000 observable_every=40: start
+[2026-05-12 16:41:33] beta=15 p=8192: done in 0.0 min

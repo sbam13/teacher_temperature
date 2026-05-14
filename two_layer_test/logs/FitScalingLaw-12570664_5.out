@@ -1,0 +1,35 @@
+TASK=FitScalingLaw
+SLURM_ARRAY_JOB_ID=12570664
+SLURM_ARRAY_TASK_ID=5
+CONFIG=configs/fit_scaling_law.yaml
+OUT_DIR=runs/fit_scaling_law_20260510_184248
+P=8192
+betas: 11 12 13 14 15
+submitted p grid: 512 1024 2048 4096 8192 16384 32768 65536 131072
+full-pass budget: 2000
+minibatch size: 2048
+[2026-05-12 11:41:32] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_20260510_184248
+p_values=[8192] betas=[11.0] steps=2000 minibatch_p_values=[512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072] minibatch_size=2048 target_passes=2000
+[2026-05-12 11:41:39] beta=11 p=8192 mode=minibatch2048 lr=0.63363589 steps=8000 observable_every=40: start
+[2026-05-12 11:41:45] beta=11 p=8192: done in 0.1 min
+[2026-05-12 11:41:46] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_20260510_184248
+p_values=[8192] betas=[12.0] steps=2000 minibatch_p_values=[512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072] minibatch_size=2048 target_passes=2000
+[2026-05-12 11:41:50] beta=12 p=8192 mode=minibatch2048 lr=0.6359838 steps=8000 observable_every=40: start
+[2026-05-12 11:41:55] beta=12 p=8192: done in 0.1 min
+[2026-05-12 11:41:56] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_20260510_184248
+p_values=[8192] betas=[13.0] steps=2000 minibatch_p_values=[512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072] minibatch_size=2048 target_passes=2000
+[2026-05-12 11:42:00] beta=13 p=8192 mode=minibatch2048 lr=0.63767586 steps=8000 observable_every=40: start
+[2026-05-12 11:42:06] beta=13 p=8192: done in 0.1 min
+[2026-05-12 11:42:07] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_20260510_184248
+p_values=[8192] betas=[14.0] steps=2000 minibatch_p_values=[512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072] minibatch_size=2048 target_passes=2000
+[2026-05-12 11:42:10] beta=14 p=8192 mode=minibatch2048 lr=0.63892494 steps=8000 observable_every=40: start
+[2026-05-12 11:42:15] beta=14 p=8192: done in 0.1 min
+[2026-05-12 11:42:17] devices: [CudaDevice(id=0)]
+task=FitScalingLaw out_dir=runs/fit_scaling_law_20260510_184248
+p_values=[8192] betas=[15.0] steps=2000 minibatch_p_values=[512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072] minibatch_size=2048 target_passes=2000
+[2026-05-12 11:42:20] beta=15 p=8192 mode=minibatch2048 lr=0.63986649 steps=8000 observable_every=40: start
+[2026-05-12 11:42:26] beta=15 p=8192: done in 0.1 min
